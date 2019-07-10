@@ -84,7 +84,7 @@ def extend_mass_mz(exp, MS1scan, mz, seed_scan, scans_masstrace,
     currentcount = 0
     while RTdiff <= RTdiff_max:
         currentcount += 1
-        if currentcount >= maxcount:
+        if currentcount >= maxcount or (MS1scan + scan_it <= 1):
             # print ("max nscan diff reached") # TODO: check if really sensible (data I checked seemed ok for a bit over 200)
             break
         scan_it += constant

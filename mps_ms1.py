@@ -25,7 +25,7 @@ def add_relaxation_mgf(mgf, mps, outfile, create_comparison=False):
             scan = int(spectrum.getTitle().split('.')[-2])
         # scan = int(spectrum.getTitle().split('.')[-2])
         # try:
-        differences = [0, 1, 2, 3, 4] #[0, -1, -2, -3, -4]
+        differences = [0, -1, -2, -3, -4]
         if not create_comparison:
             row = mps[mps[:, 0] == scan, 1:]
             if len(row) == 1:
@@ -35,10 +35,10 @@ def add_relaxation_mgf(mgf, mps, outfile, create_comparison=False):
             else:
                 print 'scan %s not found' % scan
 
-        mass = spectrum.getPrecursorMass() * spectrum.charge
+        mass = spectrum.getPrecursorMZ() * spectrum.charge          # ToDo: correct? talk to SL -protonMass missing!
         spectra_add_mip = [str((mass + x * mass_diff) / spectrum.charge) for x in differences if x != 0]
         if 0 in differences:
-            prec_mz = spectrum.getPrecursorMass()
+            prec_mz = spectrum.getPrecursorMZ()
         else:
             prec_mz = spectra_add_mip[0]
             spectra_add_mip = spectra_add_mip[1:]
@@ -200,12 +200,12 @@ if __name__ == '__main__':
     isotope_diff = 1.00335483
     # mzml_dir = 'D:/user/Swantje/data/PC/mzML/'
     # chaet_dir = 'fr7-10'
-    # mzml_dir = 'D:/user/Swantje/data/Chaetomium/frac7_10/mzML/'
-    mgf_filtered_dir = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/lars_PC_4frag_BS3_Lumos/All_prepro_peakfiles/mscon_PF_20_100_0/'
+    mzml_dir = 'D:/user/Swantje/dsso/myco_prepro/1c_remaining_frac/test_set/mzml/'
+    mgf_filtered_dir = '//130.149.167.198/rappsilbergroup/users/lswantje/dsso_opt/searches/mycoplasma_opt/data/filtered/'
     # mgf_filtered_dir = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/chaetomium/%s/All_prepro_peakfiles/mscon_PF_20/' % chaet_dir
-    setting_name = 'decoy_pos4_only'
-    mgf_out = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/lars_PC_4frag_BS3_Lumos/All_prepro_peakfiles/' + setting_name
-    info_out = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/lars_PC_4frag_BS3_Lumos/relaxation_tbls/' + setting_name
+    setting_name = 'mpsreductionfilt'
+    mgf_out = '//130.149.167.198/rappsilbergroup/users/lswantje/dsso_opt/searches/mycoplasma_opt/data/' + setting_name
+    info_out = '//130.149.167.198/rappsilbergroup/users/lswantje/dsso_opt/searches/mycoplasma_opt/' + setting_name
     # mgf_out = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/chaetomium/%s/All_prepro_peakfiles/' % chaet_dir + setting_name
     # info_out = 'D:/user/Swantje/projects/pipeline_prepro_xi_fdr/chaetomium/%s/relaxation_tbls/' % chaet_dir + setting_name
 
@@ -214,21 +214,21 @@ if __name__ == '__main__':
     if not os.path.exists(info_out):
         os.makedirs(info_out)
 
-    # mzmls_in = [x for x in os.listdir(mzml_dir) if '.mzML' in x]
+    mzmls_in = [x for x in os.listdir(mzml_dir) if '.mzML' in x]
     # Parallel(n_jobs=4)(delayed(main)(mzml_dir + x, x[:10], setting_name, info_out, mgf_filtered_dir,
     #                                  mgf_out) for x in mzmls_in)
-    # for x in mzmls_in:
-    #     main(mzml_dir + x, x[:10], setting_name, info_out, mgf_filtered_dir, mgf_out)
-    # for mzml_file in [x for x in os.listdir(mzml_dir) if '.mzML' in x]:
-    #     exp = read_mzml(mzml_dir + mzml_file)
-    #     exp_id = mzml_file[:10]
-    #
-    #     mps_df = ms1_peaks(exp)
-    #     np.savetxt(info_out + '/%s_%s.csv' % (setting_name, mzml_file), mps_df, delimiter=',')
-    #     corresponding_mgf = [x for x in os.listdir(mgf_filtered_dir) if exp_id in x][0]
-    #     add_relaxation_mgf(mgf=mgf_filtered_dir + corresponding_mgf, mps=mps_df,
-    #                        outfile=mgf_out + '/%s_' % setting_name + corresponding_mgf)
+    for x in mzmls_in:
+        main(mzml_dir + x, x[:10], setting_name, info_out, mgf_filtered_dir, mgf_out)
+    for mzml_file in [x for x in os.listdir(mzml_dir) if '.mzML' in x]:
+        exp = read_mzml(mzml_dir + mzml_file)
+        exp_id = mzml_file[:10]
 
-    for mgf_file in os.listdir(mgf_filtered_dir):
-        add_relaxation_mgf(mgf=mgf_filtered_dir + mgf_file, mps=[], create_comparison=True,
-                           outfile='D:/user/Swantje/projects/pipeline_prepro_xi_fdr/lars_PC_4frag_BS3_Lumos/All_prepro_peakfiles/' + setting_name + '_' + mgf_file)
+        mps_df = ms1_peaks(exp)
+        np.savetxt(info_out + '/%s_%s.csv' % (setting_name, mzml_file), mps_df, delimiter=',')
+        corresponding_mgf = [x for x in os.listdir(mgf_filtered_dir) if exp_id in x][0]
+        add_relaxation_mgf(mgf=mgf_filtered_dir + corresponding_mgf, mps=mps_df,
+                           outfile=mgf_out + '/%s_' % setting_name + corresponding_mgf)
+
+    # for mgf_file in os.listdir(mgf_filtered_dir):
+    #     add_relaxation_mgf(mgf=mgf_filtered_dir + mgf_file,
+    #                        outfile='D:/user/Swantje/projects/pipeline_prepro_xi_fdr/lars_PC_4frag_BS3_Lumos/All_prepro_peakfiles/' + setting_name + '_' + mgf_file)
