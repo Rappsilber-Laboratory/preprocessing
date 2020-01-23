@@ -38,7 +38,7 @@ def get_ppm_error(xi_df, outfile):
     xi_df = xi_df[(xi_df.decoy == 0) & (xi_df['match score'] > score_cutoff)] 
     xi_df_decoy = xi_df[(xi_df.decoy == 1) & (xi_df['match score'] > score_cutoff)]
     
-    while (len(xi_df_decoy.index)>0.10*len(xi_df.index))
+    while (len(xi_df_decoy.index)>0.02*len(xi_df.index))
         score_cutoff=min(xi_df['match score'][xi_df['match score'] > score_cutoff]);
         xi_df = xi_df[(xi_df.decoy == 0) & (xi_df['match score'] > score_cutoff)] 
         xi_df_decoy = xi_df[(xi_df.decoy == 1) & (xi_df['match score'] > score_cutoff)] 
