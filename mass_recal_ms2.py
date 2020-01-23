@@ -35,7 +35,15 @@ def run_xi_lin(peakfile, fasta, cnf, outpath, xipath, threads='1'):
 
 
 def get_ppm_error(xi_df, peaks_df, outfile):
-    xi_df = xi_df[(xi_df.decoy == 0) & (xi_df['match score'] > 6)]
+    score_cutoff = 2
+    xi_df = xi_df[(xi_df.decoy == 0) & (xi_df['match score'] > score_cutoff)]
+    xi_df_decoy = xi_df[(xi_df.decoy == 1) & (xi_df['match score'] > score_cutoff)]
+
+    while (len(xi_df_decoy.index)>0.10*len(xi_df.index)):
+        score_cutoff=min(xi_df['match score'][xi_df['match score'] > score_cutoff]);
+        xi_df = xi_df[(xi_df.decoy == 0) & (xi_df['match score'] > score_cutoff)]
+        xi_df_decoy = xi_df[(xi_df.decoy == 1) & (xi_df['match score'] > score_cutoff)]
+    
     median_err = np.median(xi_df['Precoursor Error'])
     try:
         fig, ax = plt.subplots()
@@ -156,7 +164,7 @@ if __name__ == '__main__':
     fasta = '//130.149.167.198/rappsilbergroup/users/MitoProject/For Swantje/20170109_uniprot_mitoIDrun_FASTA.fasta'
     outpath = base_dir + '/error_shift'
     for in_file in os.listdir(mgf_dir):
-        if '.mgf' in in_file:
+        if in_file.endswith('.mgf') and not in_file.startswith('recal_'):
             main(mgf=os.path.join(mgf_dir, in_file),
                  fasta=fasta,
                  xi_cnf='D:/user/Swantje/projects/pipeline_prepro_xi_fdr/resources/xi_linear_by_tryp.conf',

@@ -300,7 +300,7 @@ if __name__ == '__main__':
     pool.close()
     pool.join()
 
-    recal_in = [os.path.join(outdir, x) for x in os.listdir(outdir) if '.mgf' in x]
+    recal_in = [os.path.join(outdir, x) for x in os.listdir(outdir) if x.endswith('.mgf') and not x.startswith('recal_')]
     if recal:
         # pool = Pool(processes=nthr)
         if not os.path.exists(outdir):
