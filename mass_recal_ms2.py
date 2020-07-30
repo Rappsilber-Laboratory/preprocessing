@@ -91,8 +91,8 @@ def adjust_prec_mz(mgf_file, ms1_error, ms2_error, outpath):
     for spectrum in exp:
         prec_mz_new = spectrum.getPrecursorMass()/(1 + ms1_error / 10. ** 6) # TODO wrong sign if newer version
         ms2_mass_new = spectrum.getPeaks()
-        for i in range(0, len(ms2_mass_new)):
-            ms2_mass_new[i][0] = ms2_mass_new[i][0] / (1 + ms2_error / 10. ** 6)
+        for i in range(0, len(ms2_mass_new[0])):
+            ms2_mass_new[0][i] = ms2_mass_new[0][i] / (1 + ms2_error / 10. ** 6)
 
         if sys.version_info.major < 3:
             stavrox_mgf = """
@@ -106,7 +106,7 @@ RTINSECONDS={}
 END IONS     """.format(spectrum.getTitle(),
                             prec_mz_new, spectrum.getPrecursorIntensity() if spectrum.getPrecursorIntensity() > 0 else 0,
                                 int(spectrum.charge), spectrum.getRT(),
-                                "\n".join(["%s %s" % (i[0], i[1]) for i in spectrum.peaks if i[1] > 0]))
+                                "\n".join(["%s %s" % (i[0], i[1]) for i in ms2_mass_new if i[1] > 0]))
         else:
             stavrox_mgf = """
 MASS=Monoisotopic
@@ -120,8 +120,8 @@ END IONS     """.format(spectrum.getTitle(),
                         prec_mz_new,
                         spectrum.getPrecursorIntensity() if spectrum.getPrecursorIntensity() > 0 else 0,
                         int(spectrum.charge), spectrum.getRT(),
-                        "\n".join(["%s %s" % (mz, spectrum.peaks[1][i]) for i, mz in enumerate(spectrum.peaks[0]) if
-                             spectrum.peaks[1][i] > 0]))
+                        "\n".join(["%s %s" % (mz, ms2_mass_new[1][i]) for i, mz in enumerate(ms2_mass_new[0]) if
+                             ms2_mass_new[1][i] > 0]))
         out_writer.write(stavrox_mgf)
 
 
