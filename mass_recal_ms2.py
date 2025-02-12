@@ -20,7 +20,7 @@ def run_xi_lin(peakfile, fasta, cnf, outpath, xipath, threads='1'):
     elif os.path.isfile(outpath + '/xi_' + os.path.split(peakfile)[1].replace('.mgf', '.csv')):
         return
 
-    xi_cmds = ['java', '-cp', os.path.join(os.path.dirname(os.path.realpath(__file__)), xipath),
+    xi_cmds = ['/usr/bin/java', '-Xmx128g', '-cp', os.path.join(os.path.dirname(os.path.realpath(__file__)), xipath),
                'rappsilber.applications.Xi', # + '/fastutil-8.1.0.jar;' + xipath + '/XiSearch.jar'
                '--fasta=' + fasta,
                '--xiconf=UseCPUs:' + threads,
@@ -49,6 +49,7 @@ def get_ppm_error(xi_df, peaks_df, outfile):
     if len(xi_df) < 75:
         print(os.path.split(outfile)[1] + ': Only %s PSMs found. Median error is %s.' % (len(xi_df), median_err))
         err = input('Enter error to correct by (0 for no correction):\n')
+        #err = 0
         try:
             # err = float(err)
             if (err != '0'):

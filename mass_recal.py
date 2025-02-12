@@ -20,7 +20,7 @@ def run_xi_lin(peakfile, fasta, cnf, outpath, xipath, threads='1'):
     elif os.path.isfile(outpath + '/xi_' + os.path.split(peakfile)[1].replace('.mgf', '.csv')):
         return
 
-    xi_cmds = ['java', '-cp', os.path.join(os.path.dirname(os.path.realpath(__file__)), xipath),
+    xi_cmds = ['java', '-Xmx128g', '-cp', os.path.join(os.path.dirname(os.path.realpath(__file__)), xipath),
                'rappsilber.applications.Xi', # + '/fastutil-8.1.0.jar;' + xipath + '/XiSearch.jar'
                '--fasta=' + fasta,
                '--xiconf=UseCPUs:' + threads,
